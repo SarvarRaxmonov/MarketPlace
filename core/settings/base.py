@@ -45,12 +45,7 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
 ]
 
-CUSTOM_APPS = [
-    "apps.common",
-    "apps.cart",
-    "apps.product",
-    "apps.seller"
-]
+CUSTOM_APPS = ["apps.common", "apps.cart", "apps.product", "apps.seller"]
 
 THIRD_PARTY_APPS = [
     "rest_framework",
