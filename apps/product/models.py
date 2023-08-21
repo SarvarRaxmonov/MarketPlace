@@ -58,17 +58,19 @@ class Image(models.Model):
     image = models.FileField(upload_to="images/")
 
     def __str__(self):
-        return self.image
+        return f"{self.image}"
 
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="product"
+    )
     price = models.BigIntegerField(default=0)
     currency = models.CharField(max_length=40, choices=Currency.choices)
     discount = models.PositiveIntegerField()
     discount_expire_date = models.DateTimeField()
-    wholesale = models.ManyToManyField(WholeSale)
+    wholesale = models.ManyToManyField(WholeSale, blank=True)
     images = models.ManyToManyField(Image)
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
@@ -81,7 +83,7 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return self.category.name
 
 
 class SavedForLater(models.Model):

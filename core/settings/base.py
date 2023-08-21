@@ -50,6 +50,7 @@ CUSTOM_APPS = ["apps.common", "apps.cart", "apps.product", "apps.seller"]
 THIRD_PARTY_APPS = [
     "rest_framework",
     "drf_yasg",
+    "ckeditor",
     "corsheaders",
 ]
 
