@@ -52,6 +52,7 @@ THIRD_PARTY_APPS = [
     "drf_yasg",
     "ckeditor",
     "corsheaders",
+    "django_filters",
 ]
 
 REST_FRAMEWORK = {

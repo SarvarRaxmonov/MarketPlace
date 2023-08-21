@@ -1,8 +1,12 @@
 from django.db import models
+from django.db.models import Avg
 from django.utils import timezone
 from ckeditor.fields import RichTextField
 from .choices import Condition, Currency
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator
+from apps.seller.models import Profile
+from .managers import ProductManager
 
 
 class MainCategory(models.Model):
@@ -15,7 +19,9 @@ class MainCategory(models.Model):
 
 
 class Category(models.Model):
-    main_category = models.ForeignKey(MainCategory, on_delete=models.DO_NOTHING)
+    main_category = models.ForeignKey(
+        MainCategory, on_delete=models.DO_NOTHING, related_name="categories"
+    )
     name = models.CharField(max_length=100)
     image = models.FileField(upload_to="category_images/")
 
@@ -46,9 +52,9 @@ class Feature(models.Model):
 
 
 class WholeSale(models.Model):
-    price_from = models.BigIntegerField(default=0)
-    price_to = models.BigIntegerField(default=0)
-    product_count = models.IntegerField(default=0)
+    count_from = models.BigIntegerField(default=0)
+    count_to = models.BigIntegerField(default=0)
+    price = models.BigIntegerField(default=0)
 
     def __str__(self):
         return f"{self.id}"
@@ -62,28 +68,36 @@ class Image(models.Model):
 
 
 class Product(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=200)
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="product"
     )
     price = models.BigIntegerField(default=0)
     currency = models.CharField(max_length=40, choices=Currency.choices)
-    discount = models.PositiveIntegerField()
+    discount = models.PositiveIntegerField(validators=[MaxValueValidator(100)])
     discount_expire_date = models.DateTimeField()
-    wholesale = models.ManyToManyField(WholeSale, blank=True)
+    wholesale = models.ManyToManyField(
+        WholeSale, blank=True, related_name="product_wholesale"
+    )
     images = models.ManyToManyField(Image)
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    tag = models.ManyToManyField(Tag)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
     features = models.ManyToManyField(Feature)
     condition = models.CharField(max_length=40, choices=Condition.choices)
+    is_available = models.BooleanField(default=True)
     is_recommended = models.BooleanField()
     is_shipping_paid = models.BooleanField()
     description = RichTextField()
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+    objects = ProductManager()
 
     def __str__(self):
-        return self.category.name
+        return self.name
+
+    def average_rate(self):
+        return self.review_product.aggregate(avg_rate=Avg("rate"))["avg_rate"] or 0
 
 
 class SavedForLater(models.Model):
@@ -96,9 +110,11 @@ class SavedForLater(models.Model):
 
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="review_product"
+    )
     text = models.TextField()
-    rate = models.PositiveIntegerField()
+    rate = models.PositiveIntegerField(validators=[MaxValueValidator(5)])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
