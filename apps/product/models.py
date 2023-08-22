@@ -74,6 +74,7 @@ class Product(models.Model):
         Category, on_delete=models.CASCADE, related_name="product"
     )
     price = models.BigIntegerField(default=0)
+    tax = models.BigIntegerField(default=0)
     currency = models.CharField(max_length=40, choices=Currency.choices)
     discount = models.PositiveIntegerField(validators=[MaxValueValidator(100)])
     discount_expire_date = models.DateTimeField()
@@ -99,6 +100,12 @@ class Product(models.Model):
     def average_rate(self):
         return self.review_product.aggregate(avg_rate=Avg("rate"))["avg_rate"] or 0
 
+    def discount_price(self):
+        if self.discount > 0 and self.discount_expire_date > timezone.now():
+            price = self.price
+            discount_price = (self.discount / 100) * price
+            return int(discount_price)
+        return 0
 
 class SavedForLater(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

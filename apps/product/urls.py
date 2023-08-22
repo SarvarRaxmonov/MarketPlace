@@ -6,6 +6,7 @@ from .views import (
     ProductViewSet,
     RelatedProductsViewSet,
     ReviewViewSet,
+    SavedForLaterViewSet,
 )
 
 router = DefaultRouter()
@@ -24,12 +25,14 @@ urlpatterns = [
     ),
     path(
         "products/",
-        ProductViewSet.as_view({"get": "list"}),
+        ProductViewSet.as_view({"get": "list", "post": "create"}),
         name="products",
     ),
     path(
         "products/<int:id>",
-        ProductViewSet.as_view({"get": "retrieve"}),
+        ProductViewSet.as_view(
+            {"get": "retrieve", "put": "update", "delete": "destroy"}
+        ),
         name="products",
     ),
     path(
@@ -49,4 +52,15 @@ urlpatterns = [
         ),
         name="review_products",
     ),
+    path(
+        "saved-for-later-products/",
+        SavedForLaterViewSet.as_view({"get": "list", "post": "create"}),
+        name="saved-for-later-products",
+    ),
+    path(
+        "saved-for-later-product/<int:pk>",
+        SavedForLaterViewSet.as_view({"get": "retrieve", "delete": "destroy"}),
+        name="saved-for-later-retrieve-destroy",
+    ),
 ]
+

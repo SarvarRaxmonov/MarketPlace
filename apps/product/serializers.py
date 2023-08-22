@@ -1,8 +1,18 @@
 from django.db.models import Avg
 from rest_framework import serializers
-from .models import Category, MainCategory, Product, Review, WholeSale, Feature, Image
+from .models import (
+    Category,
+    MainCategory,
+    Product,
+    Review,
+    WholeSale,
+    Feature,
+    Image,
+    SavedForLater,
+)
 from apps.cart.models import Order
 from django.utils import timezone
+from apps.seller.serializers import ProfileSerializer
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -60,8 +70,8 @@ class FeatureSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer()
     orders_count = serializers.SerializerMethodField()
-    discount_price = serializers.SerializerMethodField(read_only=True, default=0)
     reviews_count = serializers.SerializerMethodField(read_only=True, default=0)
     wholesale = WholeSaleSerializer(many=True)
     features = FeatureSerializer(many=True)
@@ -71,16 +81,17 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = (
             "id",
+            "profile",
             "name",
             "average_rate",
             "price",
+            "tax",
             "orders_count",
             "reviews_count",
             "discount_price",
             "currency",
             "discount",
             "discount_expire_date",
-            "tag",
             "brand",
             "condition",
             "is_recommended",
@@ -89,6 +100,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "description",
             "wholesale",
             "category",
+            "tag",
             "images",
             "features",
             "created_at",
@@ -99,11 +111,7 @@ class ProductSerializer(serializers.ModelSerializer):
         count = Order.objects.filter(product=obj.id, is_paid=True).count()
         return count
 
-    def get_discount_price(self, obj):
-        if obj.discount > 0 and obj.discount_expire_date > timezone.now():
-            price = obj.price
-            discount_price = (obj.discount / 100) * price
-            return int(discount_price)
+
 
     def get_reviews_count(self, obj):
         return Review.objects.filter(product=obj.id).count() or 0
@@ -114,10 +122,29 @@ class RelatedProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ("id", "images", "name", "price")
+        fields = ("id", "images", "name", "price", "discount_price", "currency")
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ("id", "user", "product", "text", "rate", "created_at", "updated_at")
+
+
+class SavedForLaterSerializer(serializers.ModelSerializer):
+    product_detail = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SavedForLater
+        fields = ("user", "product", "product_detail")
+        extra_kwargs = {
+            "product": {
+                "write_only": True,
+            }
+        }
+
+    def get_product_detail(self, obj):
+        instance = Product.objects.get(id=obj.product.id)
+        serializer = RelatedProductSerializer(instance)
+        return serializer.data
+

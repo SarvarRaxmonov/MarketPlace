@@ -6,3 +6,4 @@ class ProductManager(models.Manager):
         return self.annotate(average_rate=models.Avg("review_product__rate")).filter(
             average_rate=rate_value
         )
+
