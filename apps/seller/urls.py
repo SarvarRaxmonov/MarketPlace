@@ -9,4 +9,3 @@ urlpatterns = [
         name="profile-retrieve-update-destroy",
     ),
 ]
-

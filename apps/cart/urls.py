@@ -29,8 +29,5 @@ urlpatterns = [
             }
         ),
         name="check",
-        )
+    ),
 ]
-
-
-

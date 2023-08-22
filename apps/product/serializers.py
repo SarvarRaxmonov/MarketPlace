@@ -111,8 +111,6 @@ class ProductSerializer(serializers.ModelSerializer):
         count = Order.objects.filter(product=obj.id, is_paid=True).count()
         return count
 
-
-
     def get_reviews_count(self, obj):
         return Review.objects.filter(product=obj.id).count() or 0
 
@@ -147,4 +145,3 @@ class SavedForLaterSerializer(serializers.ModelSerializer):
         instance = Product.objects.get(id=obj.product.id)
         serializer = RelatedProductSerializer(instance)
         return serializer.data
-

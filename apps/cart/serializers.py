@@ -15,4 +15,3 @@ class OrderCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ("user", "product", "quantity")
-

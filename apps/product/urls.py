@@ -63,4 +63,3 @@ urlpatterns = [
         name="saved-for-later-retrieve-destroy",
     ),
 ]
-
