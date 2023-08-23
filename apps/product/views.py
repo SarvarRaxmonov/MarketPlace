@@ -1,11 +1,7 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-from apps.product.permissions import (
-    IsReviewAuthorOrReadOnly,
-    IsReviewAuthorOrReadOnlyProduct,
-)
-from .models import Category, MainCategory, Product, Review, SavedForLater
+from .models import Category, MainCategory, Product, Review, SavedForLater, Kupon
 from .filters import CategoryFilter, ProductFilter
 from .serializers import (
     DiscountedCategorySerializer,
@@ -14,6 +10,11 @@ from .serializers import (
     RelatedProductSerializer,
     ReviewSerializer,
     SavedForLaterSerializer,
+    KuponSerializer,
+)
+from apps.product.permissions import (
+    IsReviewAuthorOrReadOnly,
+    IsReviewAuthorOrReadOnlyProduct,
 )
 
 
@@ -75,6 +76,21 @@ class SavedForLaterViewSet(viewsets.ModelViewSet):
     permission_classes = [IsReviewAuthorOrReadOnly]
 
     def list(self, request, id=None):
-        obj = SavedForLater.objects.filter(user=request.user.id)
-        serializer = SavedForLaterSerializer(obj, many=True)
+        obj = self.get_queryset().filter(user=request.user.id)
+        serializer = self.get_serializer(obj, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class KuponListCreateView(generics.ListCreateAPIView):
+    queryset = Kupon.objects.all()
+    serializer_class = KuponSerializer
+
+    def list(self, request, id=None):
+        obj = self.get_queryset().filter(profile__user=request.user)
+        serializer = self.get_serializer(obj, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class KuponRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Kupon.objects.all()
+    serializer_class = KuponSerializer

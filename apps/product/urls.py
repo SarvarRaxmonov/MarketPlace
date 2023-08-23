@@ -7,6 +7,8 @@ from .views import (
     RelatedProductsViewSet,
     ReviewViewSet,
     SavedForLaterViewSet,
+    KuponListCreateView,
+    KuponRetrieveUpdateDestroyView,
 )
 
 router = DefaultRouter()
@@ -61,5 +63,11 @@ urlpatterns = [
         "saved-for-later-product/<int:pk>",
         SavedForLaterViewSet.as_view({"get": "retrieve", "delete": "destroy"}),
         name="saved-for-later-retrieve-destroy",
+    ),
+    path("kupons/", KuponListCreateView.as_view(), name="kupon-list-create"),
+    path(
+        "kupons/<int:pk>/",
+        KuponRetrieveUpdateDestroyView.as_view(),
+        name="kupon-retrieve-update-destroy",
     ),
 ]

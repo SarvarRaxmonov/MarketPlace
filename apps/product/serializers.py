@@ -9,6 +9,7 @@ from .models import (
     Feature,
     Image,
     SavedForLater,
+    Kupon,
 )
 from apps.cart.models import Order
 from django.utils import timezone
@@ -27,14 +28,6 @@ class CategorySerializer(serializers.ModelSerializer):
         return f"{obj.price} {obj.currency}"
 
 
-class MainCategorySerializer(serializers.ModelSerializer):
-    categories = CategorySerializer(many=True)
-
-    class Meta:
-        model = MainCategory
-        fields = ("id", "name", "image", "is_prime", "categories")
-
-
 class DiscountedCategorySerializer(serializers.ModelSerializer):
     average_discount_percentage = serializers.SerializerMethodField()
 
@@ -51,10 +44,12 @@ class DiscountedCategorySerializer(serializers.ModelSerializer):
         return f"-{int(average_discount)} %"
 
 
-class WholeSaleSerializer(serializers.ModelSerializer):
+class MainCategorySerializer(serializers.ModelSerializer):
+    categories = CategorySerializer(many=True)
+
     class Meta:
-        model = WholeSale
-        fields = ("id", "count_from", "count_to", "price")
+        model = MainCategory
+        fields = ("id", "name", "image", "is_prime", "categories")
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -67,6 +62,12 @@ class FeatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feature
         fields = ("id", "name", "description")
+
+
+class WholeSaleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WholeSale
+        fields = ("id", "count_from", "count_to", "price")
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -120,7 +121,7 @@ class RelatedProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ("id", "images", "name", "price", "discount_price", "currency")
+        fields = ("id", "images", "name", "price", "discount_price", "tax", "currency")
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -145,3 +146,19 @@ class SavedForLaterSerializer(serializers.ModelSerializer):
         instance = Product.objects.get(id=obj.product.id)
         serializer = RelatedProductSerializer(instance)
         return serializer.data
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        product = validated_data["product"]
+        saved_product, created = SavedForLater.objects.get_or_create(
+            user=user, product=product
+        )
+        if not created:
+            saved_product.delete()
+        return saved_product
+
+
+class KuponSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Kupon
+        fields = ("id", "profile", "product", "code", "kupon_discount", "expire_date")

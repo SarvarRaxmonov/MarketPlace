@@ -22,9 +22,12 @@ class CategoryFilter(django_filters.FilterSet):
 
 class ProductFilter(django_filters.FilterSet):
     name = django_filters.CharFilter(field_name="name", lookup_expr="icontains")
-    brand = django_filters.CharFilter(field_name="brand__name", lookup_expr="contains")
     category = django_filters.CharFilter(
         field_name="category__name", lookup_expr="contains"
+    )
+    brand = django_filters.CharFilter(field_name="brand__name", lookup_expr="contains")
+    features = django_filters.CharFilter(
+        field_name="features__name", lookup_expr="contains"
     )
     condition = django_filters.CharFilter(
         field_name="condition", lookup_expr="contains"

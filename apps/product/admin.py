@@ -10,6 +10,7 @@ from apps.product.models import (
     Image,
     SavedForLater,
     Review,
+    Kupon,
 )
 
 admin.site.register(Product)
@@ -22,3 +23,4 @@ admin.site.register(WholeSale)
 admin.site.register(Image)
 admin.site.register(SavedForLater)
 admin.site.register(Review)
+admin.site.register(Kupon)

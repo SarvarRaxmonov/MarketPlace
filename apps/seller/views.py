@@ -1,6 +1,6 @@
-from rest_framework import generics
-from .models import Profile
-from .serializers import ProfileSerializer
+from rest_framework import generics, viewsets
+from .models import Profile, SendInquiry
+from .serializers import ProfileSerializer, SendInquirySerializer
 
 
 class ProfileListCreateView(generics.ListCreateAPIView):
@@ -11,3 +11,8 @@ class ProfileListCreateView(generics.ListCreateAPIView):
 class ProfileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
+
+
+class SendInquiryViewSet(viewsets.ModelViewSet):
+    queryset = SendInquiry.objects.all()
+    serializer_class = SendInquirySerializer

@@ -90,7 +90,7 @@ class Product(models.Model):
     is_recommended = models.BooleanField()
     is_shipping_paid = models.BooleanField()
     description = RichTextField()
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = ProductManager()
 
@@ -106,6 +106,14 @@ class Product(models.Model):
             discount_price = (self.discount / 100) * price
             return int(discount_price)
         return 0
+
+
+class Kupon(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    code = models.CharField(max_length=300)
+    kupon_discount = models.IntegerField(validators=[MaxValueValidator(100)])
+    expire_date = models.DateTimeField()
 
 
 class SavedForLater(models.Model):

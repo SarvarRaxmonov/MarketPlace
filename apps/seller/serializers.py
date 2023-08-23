@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Profile, Country
+from .models import Profile, Country, SendInquiry
 
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -21,3 +21,9 @@ class ProfileSerializer(serializers.ModelSerializer):
             "is_verified",
             "shipping_type",
         )
+
+
+class SendInquirySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SendInquiry
+        fields = ("id", "item_name", "description", "quantity", "quantity_type")

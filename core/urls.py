@@ -6,6 +6,7 @@ from .schema import swagger_urlpatterns
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("common/", include("apps.common.urls")),
     path("seller/", include("apps.seller.urls")),
     path("products/", include("apps.product.urls")),
     path("cart/", include("apps.cart.urls")),
