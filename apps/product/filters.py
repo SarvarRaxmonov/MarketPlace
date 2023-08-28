@@ -1,6 +1,8 @@
 import django_filters
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.utils import timezone
+
+from apps.cart.models import Order
 from apps.product.models import Category, Product
 
 
@@ -44,3 +46,28 @@ class ProductFilter(django_filters.FilterSet):
 
     def custom_rate_filter(self, queryset, name, value):
         return Product.objects.filter_average_rated_products(rate_value=value)
+
+
+class PersonalizedRecommendationFilter(django_filters.FilterSet):
+    class Meta:
+        model = Product
+        fields = ("name",)
+
+    @property
+    def qs(self):
+        parent = super().qs
+        user_id = self.request.user.id
+        top_products = (
+            Order.objects.values("product__name", "product__id")
+            .filter(user=user_id)
+            .annotate(order_count=Count("product"))
+            .order_by("-order_count")[:5]
+        )
+
+        random_personalized_products = (
+            parent.filter(category__in=top_products.values("product__category"))
+            .exclude(id__in=top_products.values("product__id"))
+            .order_by("?")[:5]
+        )
+
+        return random_personalized_products

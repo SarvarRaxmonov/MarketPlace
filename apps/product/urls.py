@@ -9,6 +9,7 @@ from .views import (
     SavedForLaterViewSet,
     KuponListCreateView,
     KuponRetrieveUpdateDestroyView,
+    PersonalizedRecommendationViewSet,
 )
 
 router = DefaultRouter()
@@ -69,5 +70,10 @@ urlpatterns = [
         "kupons/<int:pk>/",
         KuponRetrieveUpdateDestroyView.as_view(),
         name="kupon-retrieve-update-destroy",
+    ),
+    path(
+        "you-may-like/",
+        PersonalizedRecommendationViewSet.as_view({"get": "list"}),
+        name="you-may-like",
     ),
 ]

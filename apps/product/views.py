@@ -2,7 +2,8 @@ from rest_framework import viewsets, status, generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from .models import Category, MainCategory, Product, Review, SavedForLater, Kupon
-from .filters import CategoryFilter, ProductFilter
+from .filters import CategoryFilter, ProductFilter, PersonalizedRecommendationFilter
+from rest_framework.permissions import IsAuthenticated
 from .serializers import (
     DiscountedCategorySerializer,
     MainCategorySerializer,
@@ -79,6 +80,13 @@ class SavedForLaterViewSet(viewsets.ModelViewSet):
         obj = self.get_queryset().filter(user=request.user.id)
         serializer = self.get_serializer(obj, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class PersonalizedRecommendationViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = RelatedProductSerializer
+    filterset_class = PersonalizedRecommendationFilter
+    permission_classes = [IsAuthenticated]
 
 
 class KuponListCreateView(generics.ListCreateAPIView):

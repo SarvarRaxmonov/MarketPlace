@@ -5,7 +5,7 @@ from .models import EmailSubscribe, Article
 class EmailSubscribeSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmailSubscribe
-        fields = "email"
+        fields = ("email",)
 
 
 class ArticleSerializer(serializers.ModelSerializer):
